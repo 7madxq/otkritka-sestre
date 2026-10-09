@@ -1,0 +1,507 @@
+/* ═══════════════════════════════════════════
+   открытка для Богданки — версия под телефон
+   обложка — чистый лист с японскими деталями,
+   внутри — тетрадь в клетку: полароиды, васи-лента,
+   письмо на линованном листе
+   ═══════════════════════════════════════════ */
+
+:root {
+  --paper:     #FFF7F9;
+  --grid:      rgba(236, 143, 171, .15);
+  --blush:     #FDE7ED;
+  --petal:     #F7C3D2;
+  --rose:      #EC8FAB;
+  --rose-deep: #D0607F;
+  --ink:       #4A3036;
+  --ink-soft:  #9B7880;
+  --white:     #FFFFFF;
+
+  --pad:       20px;
+  --col:       460px;   /* ширина колонки: на компьютере тоже телефонная */
+
+  --display:   'Cormorant Garamond', Georgia, serif;
+  --sans:      'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  --hand:      'Caveat', 'Segoe Print', cursive;
+  --jp:        'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  --zh:        'Noto Serif SC', 'Songti SC', serif;
+
+  --shadow:    0 1px 2px rgba(74, 48, 54, .08), 0 14px 28px -12px rgba(208, 96, 127, .35);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  /* тетрадь в клетку */
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
+
+h1, h2, p, figure { margin: 0; }
+a { color: inherit; }
+::selection { background: var(--petal); color: var(--ink); }
+
+.hand { font-family: var(--hand); font-weight: 500; }
+.jp   { font-family: var(--jp); }
+
+/* печать-ханко: края и краска неровные — фильтр #ink в спрайте */
+.hanko { width: 44px; height: 44px; flex: none; transform: rotate(-6deg); }
+.hanko text { font-family: var(--jp); font-weight: 600; }
+
+
+/* ─── обложка ───────────────────────────── */
+.cover {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: max(32px, env(safe-area-inset-top)) var(--pad) 88px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* чистый лист поверх клетки */
+  background: var(--paper);
+}
+/* мягкий переход в клетку */
+.cover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 72px;
+  background: linear-gradient(var(--paper), rgba(255, 247, 249, 0));
+  pointer-events: none;
+}
+
+.cover__body {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.cover__visual {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.frame {
+  width: min(72vw, 310px);
+  width: min(72vw, 310px, 38svh);
+  padding: 7px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transform: rotate(-1.2deg);
+}
+
+.cover__vert {
+  writing-mode: vertical-rl;
+  font-size: 15px;
+  letter-spacing: .22em;
+  color: var(--rose-deep);
+  padding-top: 6px;
+}
+
+.cover__pre {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+
+.cover__name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(64px, 20vw, 92px);
+  line-height: .95;
+  letter-spacing: -.01em;
+  margin-top: 8px;
+}
+
+.cover__sign {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  font-size: 14px;
+  letter-spacing: .1em;
+  color: var(--ink-soft);
+}
+
+/* бледный узор на обложке, к низу растворяется */
+.print {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .12;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(#000 55%, transparent);
+  mask-image: linear-gradient(#000 55%, transparent);
+}
+.cover__body { position: relative; z-index: 1; }
+
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  font-size: 22px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+
+/* ─── листы-секции ──────────────────────── */
+.sheet {
+  position: relative;
+  z-index: 1;
+  max-width: var(--col);
+  margin: 0 auto;
+  padding: 72px var(--pad) 16px;
+}
+
+.sheet__head { margin-bottom: 34px; }
+
+.jp-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  letter-spacing: .2em;
+  color: var(--rose-deep);
+}
+.jp-label::after { content: ""; width: 36px; height: 1px; background: var(--rose); }
+
+.sheet__head h2 {
+  margin-top: 8px;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 42px;
+  line-height: 1;
+}
+
+
+/* ─── полароиды ─────────────────────────── */
+.polaroid {
+  position: relative;
+  background: var(--white);
+  padding: 10px 10px 0;
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+  transform: rotate(var(--r, 0deg));
+}
+
+.polaroid figcaption {
+  padding: 8px 4px 12px;
+  font-size: 23px;
+  line-height: 1.05;
+  text-align: center;
+}
+
+/* васи-лента сверху */
+.polaroid::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -13px;
+  left: 50%;
+  width: 84px;
+  height: 25px;
+  transform: translateX(-50%) rotate(var(--tr, -4deg));
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, .45) 0 5px, transparent 5px 10px),
+    var(--tape, var(--petal));
+  opacity: .88;
+  clip-path: polygon(3% 0, 97% 0, 100% 18%, 97% 36%, 100% 54%, 97% 72%, 100% 90%, 97% 100%, 3% 100%, 0 82%, 3% 64%, 0 46%, 3% 28%, 0 10%);
+}
+.tape-pink   { --tape: var(--petal); }
+.tape-butter { --tape: #FFE39A; }
+.tape-lilac  { --tape: #D8CBF2; }
+
+.shot {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  /* заглушка, пока фото грузится или его нет */
+  background: repeating-linear-gradient(-45deg, var(--blush) 0 10px, var(--paper) 10px 20px);
+}
+.shot[data-ratio="1:1"]  { aspect-ratio: 1 / 1; }
+.shot[data-ratio="4:3"]  { aspect-ratio: 4 / 3; }
+.shot[data-ratio="16:9"] { aspect-ratio: 16 / 9; }
+
+/* лёгкая розовая дымка — сводит фото по цвету */
+.shot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--petal);
+  mix-blend-mode: soft-light;
+  opacity: .35;
+  pointer-events: none;
+}
+
+.shot img,
+.shot video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+/* ─── фотоальбом ────────────────────────── */
+.album {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-flow: row dense;
+  align-items: center;
+  gap: 36px 16px;
+  padding-top: 8px;
+}
+.polaroid--wide {
+  grid-column: span 2;
+  width: 92%;
+  justify-self: center;
+}
+
+.album .polaroid:nth-child(1) { --r: -2.5deg; --tr: -6deg; }
+.album .polaroid:nth-child(2) { --r: 2deg;    --tr: 5deg; }
+.album .polaroid:nth-child(3) { --r: -1deg;   --tr: -3deg; }
+.album .polaroid:nth-child(4) { --r: 2deg;    --tr: 4deg; }
+.album .polaroid:nth-child(5) { --r: -2deg;   --tr: -5deg; }
+.album .polaroid:nth-child(6) { --r: 1deg;    --tr: 3deg; }
+.album .polaroid:nth-child(7) { --r: -2deg;   --tr: -4deg; }
+.album .polaroid:nth-child(8) { --r: 2.5deg;  --tr: 6deg; }
+.album .polaroid:nth-child(9) { --r: -1deg;   --tr: -3deg; }
+
+
+/* ─── письмо на линованном листе ────────── */
+.letter {
+  --lh: 30px;
+  position: relative;
+  padding: calc(var(--lh) * 1.5) 20px var(--lh) 52px;
+  line-height: var(--lh);
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  background:
+    linear-gradient(90deg, transparent 36px, var(--petal) 36px 38px, transparent 38px),
+    repeating-linear-gradient(transparent 0 calc(var(--lh) - 1px), var(--blush) calc(var(--lh) - 1px) var(--lh)),
+    var(--white);
+  background-position: 0 0, 0 calc(var(--lh) / 2 - 7px), 0 0;
+}
+
+.letter p + p { margin-top: var(--lh); }
+.letter p.letter__hello + p { margin-top: 0; }
+
+.letter__hello {
+  font-size: 30px;
+  color: var(--rose-deep);
+}
+.letter__sign {
+  text-align: right;
+  font-size: 28px;
+  color: var(--rose-deep);
+}
+
+.letter mark {
+  color: inherit;
+  background: linear-gradient(100deg, transparent .15em, var(--petal) .15em, var(--petal) calc(100% - .15em), transparent calc(100% - .15em)) 0 78% / 100% .55em no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.zh {
+  font-family: var(--zh);
+  font-weight: 600;
+  color: var(--rose-deep);
+}
+
+.sticker { position: absolute; pointer-events: none; }
+.sticker--bow {
+  width: 60px;
+  height: 47px;
+  top: -24px;
+  left: -14px;
+  transform: rotate(-18deg);
+  filter: drop-shadow(0 3px 5px rgba(208, 96, 127, .3));
+}
+
+
+/* ─── финал ─────────────────────────────── */
+.finale {
+  position: relative;
+  z-index: 1;
+  max-width: var(--col);
+  margin: 0 auto;
+  text-align: center;
+  padding: 96px var(--pad) max(60px, env(safe-area-inset-bottom));
+}
+.hanko--lg { width: 60px; height: 60px; }
+.finale__jp {
+  margin-top: 24px;
+  font-size: 17px;
+  letter-spacing: .2em;
+  color: var(--rose-deep);
+}
+.finale__made {
+  margin-top: 14px;
+  font-size: 27px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+
+a:focus-visible { outline: 2px solid var(--rose-deep); outline-offset: 4px; border-radius: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
+/* ─── анимации ──────────────────────────────
+   работают, только когда на <html> есть .anim
+   (ставится в <head>, если не просили меньше движения);
+   обложка играет по .is-ready на <body>, остальное — по .is-in при прокрутке */
+:root {
+  --ease-out:  cubic-bezier(.2, .8, .2, 1);
+  --ease-land: cubic-bezier(.3, 1.35, .5, 1);
+}
+
+/* обложка: фото ложится, надпись проявляется, имя по буквам, печать */
+.anim .print { opacity: 0; transition: opacity 1.8s ease .2s; }
+.anim .is-ready .print { opacity: .12; }
+
+.anim .frame {
+  opacity: 0;
+  transform: translateY(22px) rotate(-5deg) scale(.96);
+  transition: opacity .8s ease, transform 1.1s var(--ease-out);
+}
+.anim .is-ready .frame { opacity: 1; transform: rotate(-1.2deg); }
+
+.anim .cover__vert {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1.2s var(--ease-out) .5s;
+}
+.anim .is-ready .cover__vert { clip-path: inset(0 0 0 0); }
+
+.anim .cover__pre {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .7s ease .6s, transform .8s var(--ease-out) .6s;
+}
+.anim .is-ready .cover__pre { opacity: 1; transform: none; }
+
+.cover__name .ch { display: inline-block; }
+.anim .cover__name .ch {
+  opacity: 0;
+  transform: translateY(.22em);
+  transition: opacity .6s ease, transform .9s var(--ease-out);
+  transition-delay: calc(.8s + var(--i) * 55ms);
+}
+.anim .is-ready .cover__name .ch { opacity: 1; transform: none; }
+
+.anim .cover .hanko { opacity: 0; }
+.anim .is-ready .cover .hanko { animation: stamp .55s var(--ease-out) 1.5s both; }
+
+@keyframes stamp {
+  0%   { opacity: 0; transform: scale(1.9) rotate(-20deg); }
+  55%  { opacity: 1; transform: scale(.9) rotate(-4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-6deg); }
+}
+
+.anim .scroll-hint { opacity: 0; transition: opacity .8s ease 2.1s; }
+.anim .is-ready .scroll-hint { opacity: 1; animation: bob 2.6s ease-in-out 3s infinite; }
+@keyframes bob { 50% { transform: translate(-50%, 5px); } }
+
+/* заголовки секций и письмо выплывают снизу */
+.anim .sheet__head,
+.anim .letter {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity .8s ease, transform .9s var(--ease-out);
+}
+.anim .sheet__head.is-in,
+.anim .letter.is-in { opacity: 1; transform: none; }
+
+/* полароид «приземляется», потом его приклеивает лента */
+.anim .polaroid {
+  opacity: 0;
+  transform: translateY(32px) rotate(calc(var(--r, 0deg) * 2.5));
+  transition: opacity .6s ease var(--d, 0s), transform 1s var(--ease-land) var(--d, 0s);
+}
+.anim .polaroid.is-in { opacity: 1; transform: rotate(var(--r, 0deg)); }
+.anim .polaroid::before {
+  scale: 0 1;
+  transition: scale .5s var(--ease-out) calc(var(--d, 0s) + .5s);
+}
+.anim .polaroid.is-in::before { scale: 1 1; }
+
+/* в письме рукописные строки «пишутся», маркер прокрашивается;
+   обрезаем текст внутри строки, а следим за самой строкой —
+   иначе скрытая обрезкой строка никогда не «попадёт» в экран */
+.letter__hello span,
+.letter__sign span { display: inline-block; }
+.anim .letter__hello span,
+.anim .letter__sign span {
+  clip-path: inset(-.3em 100% -.3em 0);
+  transition: clip-path 1.5s ease .4s;
+}
+.anim .letter.is-in .letter__hello span,
+.anim .letter__sign.is-in span { clip-path: inset(-.3em -.3em -.3em 0); }
+.anim .letter mark { background-size: 0% .55em; transition: background-size 1.1s ease .3s; }
+.anim .letter mark.is-in { background-size: 100% .55em; }
+
+/* финал: печать, потом строки */
+.anim .finale .hanko { opacity: 0; }
+.anim .finale.is-in .hanko { animation: stamp .55s var(--ease-out) .2s both; }
+.anim .finale p {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .8s ease, transform .8s var(--ease-out);
+}
+.anim .finale.is-in p { opacity: 1; transform: none; }
+.anim .finale.is-in .finale__jp   { transition-delay: .8s; }
+.anim .finale.is-in .finale__made { transition-delay: 1.1s; }
+
+/* конфетти из-под печати */
+.burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.burst i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  border-radius: 2px;
+}
+
+.cover .hanko { cursor: pointer; -webkit-tap-highlight-color: transparent; }
